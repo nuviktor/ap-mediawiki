@@ -1,6 +1,5 @@
 ---
 - hosts: wiki
-  remote_user: "{{ admin_user }}"
   tasks:
     - name: install packages
       apt:
@@ -43,8 +42,8 @@
       file:
         path: /var/www/wiki
         state: directory
-        owner: "{{ admin_user }}"
-        group: "{{ admin_user }}"
+        owner: "{{ ansible_user }}"
+        group: www-data
 
     - name: install wiki files
       unarchive:
@@ -52,8 +51,8 @@
           mediawiki-1.{{ mediawiki_major_version }}.{{ mediawiki_minor_version }}.tar.gz"
         dest: /var/www/wiki/
         extra_opts: [ '--strip-components=1' ]
-        owner: "{{ admin_user }}"
-        group: "{{ admin_user }}"
+        owner: "{{ ansible_user }}"
+        group: www-data
         remote_src: true
         creates: /var/www/wiki/index.php
 
@@ -61,13 +60,18 @@
       file:
         path: /var/www/wiki/images/
         owner: www-data
-        group: www-data
 
     - debug:
         msg: >
           Installation complete. You may now follow the installation steps at http://{{ vhostname }}.
           For short URLs to work, make sure $wgArticlePath is set to '/{{ article_path_name }}/$1' in
-          LocalSettings.php
+          LocalSettings.php.
+
+    - debug:
+        msg: >
+          Ensure that LocalSettings.php's permissions are set appropriately when you install it (it
+          contains database connection credentials). It should be writable by the admin user and 
+          readable by the webserver (www-data), but no one else.
 
   handlers:
     - name: restart apache
