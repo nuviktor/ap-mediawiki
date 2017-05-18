@@ -1,0 +1,75 @@
+---
+
+- hosts: wiki
+  remote_user: "{{ admin_user }}"
+  tasks:
+    - name: install packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - git
+        - apache2
+        - apache2-mpm-event 
+        - php5
+        - php5-intl
+        - php5-gd
+        - php5-apcu
+        - php5-mysql
+        - php5-fpm
+
+    - name: activate apache modules
+      command: a2enmod "{{ item }}"
+      args:
+        creates: "/etc/apache2/mods-enabled/{{ item }}.load"
+      with_items:
+        - rewrite
+        - proxy
+        - proxy_fcgi
+      notify: restart apache
+
+    - name: install apache config
+      template:
+        src: templates/wiki.conf
+        dest: /etc/apache2/sites-available/wiki.conf
+      notify: reload apache
+
+    - name: activate apache config
+      command: a2ensite wiki
+      args:
+        creates: /etc/apache2/sites-enabled/wiki.conf
+      notify: reload apache
+
+    - name: create wiki root
+      file:
+        path: /var/www/wiki
+        state: directory
+        owner: "{{ admin_user }}"
+        group: "{{ admin_user }}"
+
+    - name: install wiki files
+      unarchive:
+        src: "https://releases.wikimedia.org/mediawiki/1.{{ mediawiki_major_version }}/mediawiki-1.{{ mediawiki_major_version }}.{{ mediawiki_minor_version }}.tar.gz"
+        dest: /var/www/wiki/
+        extra_opts: [ '--strip-components=1' ]
+        owner: "{{ admin_user }}"
+        group: "{{ admin_user }}"
+        remote_src: true
+        creates: /var/www/wiki/index.php
+
+    - name: set permissions for image uploads
+      file:
+        path: /var/www/wiki/images/
+        owner: www-data
+        group: www-data
+
+  handlers:
+    - name: restart apache
+      systemd:
+        name: apache2
+        state: restarted
+
+    - name: reload apache
+      systemd:
+        name: apache2
+        state: reloaded
