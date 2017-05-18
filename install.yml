@@ -1,5 +1,4 @@
 ---
-
 - hosts: wiki
   remote_user: "{{ admin_user }}"
   tasks:
@@ -10,20 +9,20 @@
       with_items:
         - git
         - apache2
-        - apache2-mpm-event 
+        - apache2-mpm-event # Replaces slow mpm_prefork
         - php5
-        - php5-intl
-        - php5-gd
-        - php5-apcu
+        - php5-intl # PHP i18n functions
+        - php5-gd # PHP imaging library
+        - php5-apcu # PHP caching
         - php5-mysql
-        - php5-fpm
+        - php5-fpm # PHP fast process manager
 
     - name: activate apache modules
       command: a2enmod "{{ item }}"
       args:
         creates: "/etc/apache2/mods-enabled/{{ item }}.load"
       with_items:
-        - rewrite
+        - rewrite # For short URLs
         - proxy
         - proxy_fcgi
       notify: restart apache
@@ -49,7 +48,8 @@
 
     - name: install wiki files
       unarchive:
-        src: "https://releases.wikimedia.org/mediawiki/1.{{ mediawiki_major_version }}/mediawiki-1.{{ mediawiki_major_version }}.{{ mediawiki_minor_version }}.tar.gz"
+        src: "https://releases.wikimedia.org/mediawiki/1.{{ mediawiki_major_version }}/\
+          mediawiki-1.{{ mediawiki_major_version }}.{{ mediawiki_minor_version }}.tar.gz"
         dest: /var/www/wiki/
         extra_opts: [ '--strip-components=1' ]
         owner: "{{ admin_user }}"
@@ -62,6 +62,12 @@
         path: /var/www/wiki/images/
         owner: www-data
         group: www-data
+
+    - debug:
+        msg: >
+          Installation complete. You may now follow the installation steps at http://{{ vhostname }}.
+          For short URLs to work, make sure $wgArticlePath is set to '/{{ article_path_name }}/$1' in
+          LocalSettings.php
 
   handlers:
     - name: restart apache
