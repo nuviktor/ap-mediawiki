@@ -3,6 +3,8 @@ MediaWiki Ansible Playbook
 
 Simple Ansible playbook for installing a secure and fast MediaWiki 1 installation on Debian 8.
 
+Superuser privileges are required for most commands, so make sure to run the playbook with -b (and -K if you use a sudo password).
+
 Variables
 ---------
 
