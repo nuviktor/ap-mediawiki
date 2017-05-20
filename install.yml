@@ -61,6 +61,13 @@
         path: /var/www/wiki/images/
         owner: www-data
 
+    - name: create optional cache directory
+      file:
+        path: /var/www/wiki/cache
+        owner: www-data
+        group: www-data
+        state: directory
+
     - debug:
         msg: >
           Installation complete. You may now follow the installation steps at http://{{ vhostname }}.
@@ -70,8 +77,13 @@
     - debug:
         msg: >
           Ensure that LocalSettings.php's permissions are set appropriately when you install it (it
-          contains database connection credentials). It should be writable by the admin user and 
+          contains database connection credentials). It should be writable by the admin user and
           readable by the webserver (www-data), but no one else.
+
+    - debug:
+        msg: >
+          Finally, an optional directory has been created for storing a file cache. If you want to
+          use it, set $wgUseFileCache to true, and $wgFileCacheDirectory to '$IP/cache'.
 
   handlers:
     - name: restart apache
