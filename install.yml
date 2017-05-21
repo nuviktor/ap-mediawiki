@@ -71,7 +71,7 @@
 
     - debug:
         msg: >
-          Installation complete. You may now follow the installation steps at http://{{ vhostname }}.
+          Installation complete. You may now follow the installation steps at http://{{ vhostname }}:{{ apache_port | default(80) }}.
           For short URLs to work, make sure $wgArticlePath is set to '/{{ article_path_name | default('wiki') }}/$1'
           in LocalSettings.php.
 
