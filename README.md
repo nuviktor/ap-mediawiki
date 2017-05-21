@@ -9,6 +9,9 @@ Variables
 ---------
 
 - vhostname (e.g. "en.wikipedia.org")
+- vhostaliases (optional, a list of host values that should also be served by the wiki)
 - mediawiki_major_version (e.g. 28)
 - mediawiki_minor_version (e.g. 2)
-- article_path_name (e.g. "wiki" or "w")
+- install_path (e.g. "/var/www/wiki"), make sure there is no trailing slash
+- article_path_name (e.g. "wiki" or "w", default "wiki")
+- apache_port (e.g. 80, default 80)

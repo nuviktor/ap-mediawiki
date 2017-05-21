@@ -40,30 +40,31 @@
 
     - name: create wiki root
       file:
-        path: /var/www/wiki
+        path: "{{ install_path }}"
         state: directory
         owner: "{{ ansible_user }}"
         group: www-data
+        mode: 0750
 
     - name: install wiki files
       unarchive:
         src: "https://releases.wikimedia.org/mediawiki/1.{{ mediawiki_major_version }}/\
           mediawiki-1.{{ mediawiki_major_version }}.{{ mediawiki_minor_version }}.tar.gz"
-        dest: /var/www/wiki/
+        dest: "{{ install_path }}"
         extra_opts: [ '--strip-components=1' ]
         owner: "{{ ansible_user }}"
         group: www-data
         remote_src: true
-        creates: /var/www/wiki/index.php
+        creates: "{{ install_path }}/index.php"
 
     - name: set permissions for image uploads
       file:
-        path: /var/www/wiki/images/
+        path: "{{ install_path }}/images/"
         owner: www-data
 
     - name: create optional cache directory
       file:
-        path: /var/www/wiki/cache
+        path: "{{ install_path }}/cache/"
         owner: www-data
         group: www-data
         state: directory
@@ -71,19 +72,14 @@
     - debug:
         msg: >
           Installation complete. You may now follow the installation steps at http://{{ vhostname }}.
-          For short URLs to work, make sure $wgArticlePath is set to '/{{ article_path_name }}/$1' in
-          LocalSettings.php.
-
-    - debug:
-        msg: >
-          Ensure that LocalSettings.php's permissions are set appropriately when you install it (it
-          contains database connection credentials). It should be writable by the admin user and
-          readable by the webserver (www-data), but no one else.
+          For short URLs to work, make sure $wgArticlePath is set to '/{{ article_path_name | default('wiki') }}/$1'
+          in LocalSettings.php.
 
     - debug:
         msg: >
           Finally, an optional directory has been created for storing a file cache. If you want to
-          use it, set $wgUseFileCache to true, and $wgFileCacheDirectory to '$IP/cache'.
+          use it, set $wgUseFileCache to true, and $wgFileCacheDirectory to '$IP/cache' in
+          LocalSettings.php.
 
   handlers:
     - name: restart apache
