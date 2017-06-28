@@ -1,5 +1,5 @@
 ---
-- hosts: wiki
+- hosts: test
   tasks:
     - name: install packages
       apt:
@@ -8,13 +8,14 @@
       with_items:
         - git
         - apache2
-        - apache2-mpm-event # Replaces slow mpm_prefork
-        - php5
-        - php5-intl # PHP i18n functions
-        - php5-apcu # PHP caching
-        - php5-mysql
-        - php5-fpm # PHP fast process manager
+        - php7.0-fpm # PHP w/ fast process manager
+        - php7.0-mysql
+        - php7.0-mbstring
+        - php7.0-xml
+        - php7.0-intl # PHP i18n functions
+        - php7.0-apcu
         - imagemagick
+      notify: restart php-fpm
 
     - name: activate apache modules
       command: a2enmod "{{ item }}"
@@ -22,7 +23,6 @@
         creates: "/etc/apache2/mods-enabled/{{ item }}.load"
       with_items:
         - rewrite # For short URLs
-        - proxy
         - proxy_fcgi
       notify: restart apache
 
@@ -92,3 +92,8 @@
       systemd:
         name: apache2
         state: reloaded
+
+    - name: restart php-fpm
+      systemd:
+        name: php7.0-fpm
+        state: restarted
