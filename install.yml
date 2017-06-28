@@ -11,10 +11,10 @@
         - apache2-mpm-event # Replaces slow mpm_prefork
         - php5
         - php5-intl # PHP i18n functions
-        - php5-gd # PHP imaging library
         - php5-apcu # PHP caching
         - php5-mysql
         - php5-fpm # PHP fast process manager
+        - imagemagick
 
     - name: activate apache modules
       command: a2enmod "{{ item }}"
