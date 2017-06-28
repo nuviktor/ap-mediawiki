@@ -1,5 +1,5 @@
 ---
-- hosts: test
+- hosts: wiki
   tasks:
     - name: install packages
       apt:
