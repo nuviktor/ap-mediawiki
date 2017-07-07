@@ -7,9 +7,11 @@
         state: present
       with_items:
         - git
+        - unzip
         - apache2
         - php7.0-fpm # PHP w/ fast process manager
         - php7.0-mysql
+        - php7.0-curl # Needed for certain extensions
         - php7.0-mbstring
         - php7.0-xml
         - php7.0-intl # PHP i18n functions
